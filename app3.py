@@ -1,10 +1,11 @@
 import os
 import streamlit as st
 from together import Together
+from dotenv import load_dotenv
 
 # Set up the Together API client
-api_key = os.environ.get('TOGETHER_API_KEY')  # Ensure this environment variable is set
-client = Together(api_key=api_key)
+load_dotenv()
+client = Together()
 
 
 def get_llama_response(prompt, history):
