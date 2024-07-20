@@ -1,92 +1,93 @@
 from langchain_community.llms import Ollama
-# from langchain_community.agent_toolkits.load_tools import load_tools
+from langchain_community.agent_toolkits.load_tools import load_tools
 from crewai import Agent, Crew, Task, Process
+from tools.search_tools import SearchTools
+from dotenv import load_dotenv
 
 model = Ollama(model="llama3")
-# tools = load_tools(["human", "llm-math"], llm=model)
+load_dotenv()
 verbose = True
 
+# User Query
 query = "Help me with a workout plan."
 
 # Agents
 class FitnessAgents():
-    def lead_coach(self):
-        return Agent(
-            role="Lead Coach",
-            goal=f"Understand the users needs: {query}, and tailor specialized query to pass to 'Fitness Trainer' and 'Nutrionist' and use their response to compile a well detailed fitness routine for the user.",
-            backstory="With extensive experience in managing fitness programs and a strong background in exercise science and health coaching, you have successfully guided numerous clients through comprehensive fitness journeys. Your expertise in tailoring plans and strategic oversight helps clients achieve significant results.",
-            verbose=verbose,
-            allow_delegation=True,
-            llm=model,
-            max_iter=20,
-        )
-
-
     def fitness_trainer(self):
         return Agent(
             role="Fitness Trainer",
-            goal="Make a custom, well-detailed training plan according to users need to help him achieve his goals.",
+            goal="Make a custom, well-detailed training plan according to user's needs to help achieve desired goals. You can search the internet to find relevant data and content to generate your answer, but use it only once to gather information, after that reflect on the data and write a plan accordinly.",
             backstory="With a background in personal training and certification in strength and conditioning, you have a proven track record of helping clients build muscle, loose weight and improve their fitness levels. Your passion for fitness and dedication to personalized workout plans and support make you an invaluable part of the team.",
-            # tools=tools,
+            tools=[SearchTools.search_internet],
             verbose=verbose,
             allow_delegation=False,
             llm=model,
+            max_iter=10
         )
 
     def nutritionist(self):
         return Agent(
             role="Nutritionist",
-            goal="Make a custom diet plan which complement user's fitness regimen, promotes muscle growth, and supports overall health while fitting within their constraints (such as hostel living or limited available materials). You aim to provide practical and sustainable dietary recommendations.",
+            goal="Make a custom diet plan which complement user's fitness regimen, and required needs. You aim to provide practical and sustainable dietary recommendations. You can also search the internet to find relevant data and content to generate your answer, but  use it only once to gather information, after that reflect on the data and writer write accordinly.",
             backstory="With a degree in nutrition or dietetics and certification in your field, you have experience working with athletes and individuals with specific dietary needs. Your expertise includes meal planning, nutrient timing, and understanding the relationship between diet and exercise performance.",
-            # tools=tools,
+            tools=[SearchTools.search_internet],
             verbose=verbose,
             allow_delegation=False,
+            llm=model,
+            max_iter=10
+        )
+        
+    def plan_writer(self):
+        return Agent(
+            role="Plan Writer",
+            goal="Writing detailed customized fintess and nutrion plans for clients incorporating the details received from other agents.",
+            backstory="With extensive experience in managing fitness programs and a strong background in exercise science and health coaching, you have successfully guided numerous clients through comprehensive fitness journeys. Your expertise in tailoring plans and strategic oversight helps clients achieve significant results.",
+            verbose=verbose,
+            allow_delegation=True,
             llm=model,
         )
 
 # Tasks
 class FitnessTasks:
-    def manage_fitness_goals(self, agent):
+    def generate_fitness_routine(self, agent):
         return Task(
-            description=f"Understand the user's needs from the given query: `{query}`. Based on this, provide a structured output specifying the tasks for 'Fitness Trainer' and 'Nutritionist'. The output should include detailed questions to ask the user if necessary, and instructions for each agent.",
+            description=f"Create a Personalized Workout Plan for client, based on the query: {query} and searched results from the internet(if any).",
             agent=agent,
-            expected_output="JSON format with fields 'fitness_tasks' and 'nutrition_tasks'. Example: {'fitness_tasks': 'Design strength training routine', 'nutrition_tasks': 'Create a muscle gain diet plan', 'questions': ['What is the user's current fitness level?']}."
-        )
-
-    def generate_fitness_routine(self, agent, context):
-        return Task(
-            description="Use the 'fitness_tasks' field from the output of 'manage_fitness_tasks' to generate a relevant and structured fitness routine. If needed, ask user to provide further details or clarifications based on user requirements.",
-            agent=agent,
-            context=context,
             expected_output="A detailed and structured fitness routine based on the input query."
         )
 
     def generate_diet_plan(self, agent, context):
         return Task(
-            description="Use the 'nutrition_tasks' field from the output of 'manage_fitness_tasks' to create a relevant and structured diet plan. If needed, ask user to provide further details or clarifications based on user requirements.",
+            description=f"Design a Customized Meal Plan for client, based on the training_regime:{context} and intial_query:{query}.",
             agent=agent,
             context=context,
             expected_output="A comprehensive and structured diet plan based on the input query."
+        )
+
+    def write_plans(self, agent, context):
+        return Task(
+            description=f"With the help of the content provided by 'fitness_trainer' and 'nutritionist' agents: {context}, Write a Detailed Fitness and Nutrition Plan for the week.",
+            agent=agent,
+            context=context,
+            expected_output="Well formated and structured weekly fitness and diet plan according to the user's needs."
         )
 
 # Initialize the Crew with the agents and tasks
 agents = FitnessAgents()
 tasks = FitnessTasks()
 
-coach = agents.lead_coach()
 trainer = agents.fitness_trainer()
 nutritionist = agents.nutritionist()
+writer = agents.plan_writer()
 
-manage_fitness_goals = tasks.manage_fitness_goals(coach)
-generate_fitness_routine = tasks.generate_fitness_routine(trainer, [manage_fitness_goals])
-generate_diet_plan = tasks.generate_diet_plan(nutritionist, [manage_fitness_goals]) # can add fitness routine also to tailor diet according to that
-
+generate_fitness_routine = tasks.generate_fitness_routine(trainer)
+generate_diet_plan = tasks.generate_diet_plan(nutritionist, [generate_fitness_routine])
+write_plan = tasks.write_plans(writer, [generate_fitness_routine, generate_diet_plan])
 
 crew = Crew(
-    agents=[coach, trainer, nutritionist],
-    tasks=[manage_fitness_goals, generate_fitness_routine, generate_diet_plan],
-    process=Process.hierarchical,
-    manager_llm=model,
+    agents=[trainer, nutritionist, writer],
+    tasks=[generate_fitness_routine, generate_diet_plan, write_plan],
+    process=Process.sequential,
     verbose=verbose,
 )
 
