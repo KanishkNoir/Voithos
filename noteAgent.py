@@ -1,7 +1,7 @@
 from together import Together
 from dotenv import load_dotenv
 import os
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, Document
+from llama_index.core import VectorStoreIndex, Document
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.embeddings.together import TogetherEmbedding
 from llama_index.llms.together import TogetherLLM
