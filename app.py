@@ -89,9 +89,6 @@ def main():
     if st.sidebar.button('Fitness Buddy'):
         st.session_state.page = 'Fitness Buddy'
 
-    if page == 'Home':
-        st.write("Welcome to the Student Multi-Agent System!")
-        st.write("Use the sidebar to navigate to different features.")
     if st.session_state.page == 'Home':
         st.markdown('<p class="title">🎓 Welcome to the Student Multi-Agent System!</p>', unsafe_allow_html=True)
         st.write('<p class="description">Your all-in-one platform for managing your student life.</p>', unsafe_allow_html=True)
