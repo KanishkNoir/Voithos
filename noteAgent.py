@@ -313,7 +313,7 @@ def main():
 
     st.markdown("""
         ---
-        **RAG based note taking application** | Developed by Jaspreet Singh, Team Noir
+        **RAG based note taking application** | Developed by Team Noir
     """)
 
 if __name__ == "__main__":
