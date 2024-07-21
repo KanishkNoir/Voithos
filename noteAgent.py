@@ -195,123 +195,126 @@ def split_text(text):
     splitter = SentenceSplitter(chunk_size=512, chunk_overlap=20)
     return splitter.get_nodes_from_documents([Document(text=text)])
 
+def main():
+    st.title("Student Multi-Agent System")
+    st.subheader("RAG based note taking application")
+    st.markdown("""
+        ## How to Use
+        1. Upload your PDFs on the left sidebar.
+        2. Click "Generate Flashcards" or "Generate Questions" or "Generate mind map" to create study aids.
+        3. Enter a query in the prompt box on the left sidebar and click "Submit Query" to converse with the system.
+        4. View the response in the main area.
 
-st.title("Student Multi-Agent System")
-st.subheader("RAG based note taking application")
+        ## Examples
+        
+    """)
 
-# File uploader can be placed outside the tabs, perhaps in a sidebar
-st.header("Upload Documents")
-uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True)
-
-
-if uploaded_files:
-    if not st.session_state['pdf_processed']:
-        with st.spinner('Processing PDFs...'):
-            all_documents = []
-            for uploaded_file in uploaded_files:
-                pdf_text = read_pdf(uploaded_file)
-                nodes = split_text(pdf_text)
-                all_documents.append(Document(text=pdf_text))
-                all_documents.extend(Document(text=node.text) for node in nodes)
-            
-            st.session_state['documents'] = all_documents
-            st.success("PDFs uploaded and processed.")
-            st.session_state['pdf_processed'] = True
-if st.session_state['pdf_processed']:
-
-# Assuming you've already set up your RAG model and other necessary imports
-
-    tab1, tab2, tab3, tab4 = st.tabs(["Chat", "Flashcards", "Questions", "Mind Map"])
-
-    with tab1:
-        st.header("Chat with AI")
-        with st.chat_message(name="user"):
-            prompt = st.text_input("What topic do you need help with?")
-        with st.chat_message(name="ai"): 
-            if st.button("Submit Query"):
-                if prompt:
-                    with st.spinner('Processing...'):
-                        st.session_state['history'].append(prompt)
-                        response = converseWithRag(prompt, st.session_state['history'], st.session_state['documents'])
-                        if response:
-                            st.session_state['history'].append(response)
-                            st.success("Response received:")
-                            st.write(response)
-                        else:
-                            st.error("Failed to get a response. Please try again.")
-
-                else:
-                    st.error("Please enter a topic or question.")
-
-    with tab2:
-        st.header("Flashcards")
-        if st.button("Generate Flashcards"):
-            with st.spinner('Generating flashcards...'):
-                response = run_rag_completion(st.session_state['documents'], "Generate flashcards based on the content")
-                flashcards, raw_response = generateFlashcards(response)
-                if flashcards:
-                    for i, (question, answer) in enumerate(flashcards):
-                        with st.expander(f"Flashcard {i+1}: {question}"):
-                            st.write(answer)
-                else:
-                    st.warning("No flashcards were generated. Please try again.")
-
-            # Add to history
-            st.session_state['history'].append("Generate Flashcards")
-            st.session_state['history'].append(f"**Generated Flashcards:**\n{raw_response}")
-
-    with tab3:
-        st.header("Generated Questions")
-        if st.button("Generate Questions"):
-            with st.spinner('Generating questions...'):
-                response = run_rag_completion(st.session_state['documents'], "Generate questions based on the content")
-                qa_pairs, raw_response = generateQuestions(response)
-                if qa_pairs:
-                    for i, (question, answer) in enumerate(qa_pairs):
-                        st.write(f"{question}")
-                        with st.expander("Show Answer"):
-                            st.write(answer)
-                else:
-                    st.warning("No questions were generated. Please try again.")
-
-            # Add to history
-            st.session_state['history'].append("Generate Questions")
-            st.session_state['history'].append(f"**Generated Questions:**\n{raw_response}")
-
-    with tab4:
-        st.header("Mind Map")
-        if st.button("Generate Mind Map"):
-            with st.spinner('Generating a mind map...'):
-                response = run_rag_completion(st.session_state['documents'], "Generate a mind map based on the content")
-                mind_map = generateMindMap(response)
-                if mind_map:
-                    st.markdown(f"```\n{mind_map}\n```")  # Display the mind map as text
-                else:
-                    st.warning("Failed to generate a mind map. Please try again.")
-
-            # Add to history
-            st.session_state['history'].append("Generate Mind Map")
-            st.session_state['history'].append(f"**Generated Mind Map:**\n{mind_map}")
+    # File uploader can be placed outside the tabs, perhaps in a sidebar
+    st.header("Upload Documents")
+    uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True)
 
 
-st.markdown("### Conversation")
-for i in range(0, len(st.session_state['history']), 2):
-    st.markdown(f"**You:** {st.session_state['history'][i]}")
-    if i + 1 < len(st.session_state['history']):
-        st.markdown(f"**Assistant:** {st.session_state['history'][i + 1]}")
+    if uploaded_files:
+        if not st.session_state['pdf_processed']:
+            with st.spinner('Processing PDFs...'):
+                all_documents = []
+                for uploaded_file in uploaded_files:
+                    pdf_text = read_pdf(uploaded_file)
+                    nodes = split_text(pdf_text)
+                    all_documents.append(Document(text=pdf_text))
+                    all_documents.extend(Document(text=node.text) for node in nodes)
+                
+                st.session_state['documents'] = all_documents
+                st.success("PDFs uploaded and processed.")
+                st.session_state['pdf_processed'] = True
+    if st.session_state['pdf_processed']:
 
-st.markdown("""
-    ## How to Use
-    1. Upload your PDFs on the left sidebar.
-    2. Click "Generate Flashcards" or "Generate Questions" or "Generate mind map" to create study aids.
-    3. Enter a query in the prompt box on the left sidebar and click "Submit Query" to converse with the system.
-    4. View the response in the main area.
+    # Assuming you've already set up your RAG model and other necessary imports
 
-    ## Examples
-    
-""")
+        tab1, tab2, tab3, tab4 = st.tabs(["Chat", "Flashcards", "Questions", "Mind Map"])
 
-st.markdown("""
-    ---
-    **Student Multi-Agent System** | Developed by ???
-""")
+        with tab1:
+            st.header("Chat with AI")
+            with st.chat_message(name="user"):
+                prompt = st.text_input("What topic do you need help with?")
+            with st.chat_message(name="ai"): 
+                if st.button("Submit Query"):
+                    if prompt:
+                        with st.spinner('Processing...'):
+                            st.session_state['history'].append(prompt)
+                            response = converseWithRag(prompt, st.session_state['history'], st.session_state['documents'])
+                            if response:
+                                st.session_state['history'].append(response)
+                                st.success("Response received:")
+                                st.write(response)
+                            else:
+                                st.error("Failed to get a response. Please try again.")
+
+                    else:
+                        st.error("Please enter a topic or question.")
+
+        with tab2:
+            st.header("Flashcards")
+            if st.button("Generate Flashcards"):
+                with st.spinner('Generating flashcards...'):
+                    response = run_rag_completion(st.session_state['documents'], "Generate flashcards based on the content")
+                    flashcards, raw_response = generateFlashcards(response)
+                    if flashcards:
+                        for i, (question, answer) in enumerate(flashcards):
+                            with st.expander(f"Flashcard {i+1}: {question}"):
+                                st.write(answer)
+                    else:
+                        st.warning("No flashcards were generated. Please try again.")
+
+                # Add to history
+                st.session_state['history'].append("Generate Flashcards")
+                st.session_state['history'].append(f"**Generated Flashcards:**\n{raw_response}")
+
+        with tab3:
+            st.header("Generated Questions")
+            if st.button("Generate Questions"):
+                with st.spinner('Generating questions...'):
+                    response = run_rag_completion(st.session_state['documents'], "Generate questions based on the content")
+                    qa_pairs, raw_response = generateQuestions(response)
+                    if qa_pairs:
+                        for i, (question, answer) in enumerate(qa_pairs):
+                            st.write(f"{question}")
+                            with st.expander("Show Answer"):
+                                st.write(answer)
+                    else:
+                        st.warning("No questions were generated. Please try again.")
+
+                # Add to history
+                st.session_state['history'].append("Generate Questions")
+                st.session_state['history'].append(f"**Generated Questions:**\n{raw_response}")
+
+        with tab4:
+            st.header("Mind Map")
+            if st.button("Generate Mind Map"):
+                with st.spinner('Generating a mind map...'):
+                    response = run_rag_completion(st.session_state['documents'], "Generate a mind map based on the content")
+                    mind_map = generateMindMap(response)
+                    if mind_map:
+                        st.markdown(f"```\n{mind_map}\n```")  # Display the mind map as text
+                    else:
+                        st.warning("Failed to generate a mind map. Please try again.")
+
+                # Add to history
+                st.session_state['history'].append("Generate Mind Map")
+                st.session_state['history'].append(f"**Generated Mind Map:**\n{mind_map}")
+
+    st.markdown("***")
+    with st.expander("Conversation"):
+        for i in range(0, len(st.session_state['history']), 2):
+            st.markdown(f"**You:** {st.session_state['history'][i]}")
+            if i + 1 < len(st.session_state['history']):
+                st.markdown(f"**Assistant:** {st.session_state['history'][i + 1]}")
+
+
+    st.markdown("""
+        ---
+        **Student Multi-Agent System** | Developed by ???
+    """)
+
+if __name__ == "__main__":
+    main()

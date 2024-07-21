@@ -3,9 +3,12 @@ import streamlit as st
 from datetime import datetime
 from PIL import Image
 from together import Together
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Set up the Together API client
-api_key = os.environ.get('TOGETHER_API_KEY')  # Ensure this environment variable is set
+api_key = os.getenv('TOGETHER_API_KEY')  # Ensure this environment variable is set
 client = Together(api_key=api_key)
 
 
@@ -107,9 +110,15 @@ def display_recommendation_images(recommendations):
 
     st.markdown(formatted_recommendations, unsafe_allow_html=True)
 
+# Initialize session state variables
+if 'user_data' not in st.session_state:
+    st.session_state['user_data'] = {}
 
+if 'selected_mood' not in st.session_state:
+    st.session_state['selected_mood'] = None
+    
 # Define the main page
-def mood_tracker_page():
+def main():
     st.title("Mood Check!")
     st.write("Select your current mood to get personalized recommendations to improve your mood and boost productivity.")
 
@@ -134,13 +143,6 @@ def mood_tracker_page():
             display_recommendation_images(st.session_state['additional_recommendations'])
 
 
-# Sidebar content for navigation
-st.sidebar.title("Let's fix your mood!")
-st.sidebar.markdown("[Go to Main Page](main.py)")
-
-# Display the selected page
-mood_tracker_page()
-
 # Add some CSS for styling
 st.markdown(
     """
@@ -163,3 +165,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+if __name__ == "__main__":
+    main()

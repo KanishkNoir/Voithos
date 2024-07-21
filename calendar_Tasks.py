@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timezone
+import streamlit as st
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -82,25 +83,26 @@ def process_query(query, events=None):
     return response_content
 
 def main():
-    print("AI-Powered Calendar Assistant")
+    st.title("AI-Powered Calendar Assistant")
 
     # Google Calendar Authentication
     try:
         service = get_calendar_service()
+        st.success("Successfully authenticated with Google Calendar.")
     except Exception as e:
-        print(f"Failed to authenticate with Google Calendar: {str(e)}")
+        st.error(f"Failed to authenticate with Google Calendar: {str(e)}")
         return
 
     # User Input
-    query = input("Enter your request: ")
+    query = st.text_input("Enter your request:")
     
     if query:
-        print("Processing your request...")
+        st.write("Processing your request...")
         now = datetime.now(timezone.utc).isoformat()
         events = get_events(service, now)
         response = process_query(query, events)
-        print("\nAI Response")
-        print(response)
+        st.write("## AI Response")
+        st.write(response)
 
 if __name__ == "__main__":
     main()
