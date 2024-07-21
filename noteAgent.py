@@ -196,7 +196,7 @@ def split_text(text):
     return splitter.get_nodes_from_documents([Document(text=text)])
 
 def main():
-    st.title("Student Multi-Agent System")
+    #st.title("Student Multi-Agent System")
     st.subheader("RAG based note taking application")
     st.markdown("""
         ## How to Use
@@ -313,7 +313,7 @@ def main():
 
     st.markdown("""
         ---
-        **Student Multi-Agent System** | Developed by ???
+        **RAG based note taking application** | Developed by Jaspreet Singh, Team Noir
     """)
 
 if __name__ == "__main__":
