@@ -10,4 +10,3 @@ google-api-python-client
 python-dotenv
 pandas 
 numpy
-random
