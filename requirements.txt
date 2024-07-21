@@ -11,3 +11,4 @@ PyMuPDF
 together
 numpy
 pandas
+python-dotenv
