@@ -39,5 +39,5 @@ Follow these steps to run the application:
    ```
    streamlit run app.py
    ```
-4. **Access the Application**
+4. **Access the Application**<br />
   Open your web browser and navigate to the address provided by Streamlit usually ```http://localhost:8501```
