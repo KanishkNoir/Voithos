@@ -5,7 +5,7 @@ Developed a system to process student queries and classify them into one or more
 ## 📅 Scheduler Agent
   Handles calendar-related queries.
   Interacts directly with the Google Calendar API to manage events and schedules.
-  Focuses on efficient API interactions without using RAG (Retrieval-Augmented Generation).
+  Focuses on efficient API interactions.
   
 ## 📓 Note Maker Agent
   Manages study notes and creates study materials.
