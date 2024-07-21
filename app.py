@@ -25,7 +25,6 @@ def classify_query(query):
     return response.choices[0].message.content.strip()
 
 def main():
-    st.title("Student Multi-Agent System")
     # Enhanced Custom CSS for improved aesthetics
     st.markdown("""
     <style>
@@ -90,11 +89,9 @@ def main():
         st.session_state.page = 'Fitness Buddy'
 
     if st.session_state.page == 'Home':
-        st.markdown('<p class="title">🎓 Welcome to the Student Multi-Agent System!</p>', unsafe_allow_html=True)
-        st.write('<p class="description">Your all-in-one platform for managing your student life.</p>', unsafe_allow_html=True)
+        st.markdown('<p class="title">🎓 Welcome to the Voithós!</p>', unsafe_allow_html=True)
+        st.write('<p class="description">Your all-in-one AI platform for managing your daily student life.</p>', unsafe_allow_html=True)
 
-    elif page == 'Mood Tracker':
-        mood_tracker_main()
         st.markdown('<p class="subtitle section">How can I help you today?</p>', unsafe_allow_html=True)
         user_query = st.text_input("Enter your task or question:")
         
@@ -109,10 +106,8 @@ def main():
 
         st.markdown('<p class="subtitle section">🚀 Why this project?</p>', unsafe_allow_html=True)
         st.write("""
-        The Student Multi-Agent System was created to address the unique challenges faced by students in managing their academic and personal lives. Our goal is to provide a comprehensive tool that:
+        Voithós was created to address the unique challenges faced by students in managing their academic and personal lives. Our goal is to provide a comprehensive tool that:
 
-    elif page == 'Note Agent':
-    elif page == 'Study Buddy':
         1. Helps students track their emotional well-being
         2. Assists in organizing and managing notes effectively
         3. Streamlines calendar management for better time allocation
@@ -133,10 +128,9 @@ def main():
         mood_tracker_main()
     elif st.session_state.page == 'Study Buddy':
         note_agent_main()
-    
-    elif page == 'Calendar':
+    elif st.session_state.page == 'Calendar':
         calendar_tasks_main()
-    elif page == 'Fitness Buddy':
+    elif st.session_state.page == 'Fitness Buddy':
         fitness_agent_main()
 
 if __name__ == "__main__":
