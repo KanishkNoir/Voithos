@@ -23,3 +23,21 @@ Developed a system to process student queries and classify them into one or more
   Emotional Support: Provide empathetic responses and comforting messages to help users manage their emotions and feel understood.
   Mood Tracking: Enable users to log and monitor their mood over time, offering insights and trends to help them understand their emotional patterns.
   Coping Strategies: Suggest personalized coping mechanisms and activities, such as breathing exercises, mindfulness practices to help users improve their mood.
+
+# Running the application 
+Follow these steps to run the application:
+
+1. **Clone the Repository**
+   ```
+   git clone https://github.com/jaz404/llama3hackathon.git
+   ```
+2. **Install Dependencies**
+   ```
+   pip install -r requirements.txt
+   ```
+3. **Run the Application**
+   ```
+   streamlit run app.py
+   ```
+4. **Access the Application**
+  Open your web browser and navigate to the address provided by Streamlit usually ```http://localhost:8501```
