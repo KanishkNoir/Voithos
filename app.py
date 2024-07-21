@@ -77,9 +77,6 @@ def main():
         st.session_state.page = 'Home'
 
     # Sidebar for navigation
-    st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Go to", ['Home', 'Mood Tracker', 'Note Agent', 'Calendar'])
-    page = st.sidebar.radio("Go to", ['Home', 'Mood Tracker', 'Study Buddy', 'Calendar', 'Fitness Buddy'])
     st.sidebar.title("Student Portal")
     if st.sidebar.button('Home'):
         st.session_state.page = 'Home'
