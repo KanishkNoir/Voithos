@@ -1,4 +1,5 @@
-# 🤖 Multi Agent Student Assistant
+# 🤖 Voithós
+### Multi Agent Student Assistant
 Developed a system to process student queries and classify them into one or more categories: **scheduler**, **wellness**, **diet**, **and note maker**. Based on the classification, the system generates a tailored prompt for each category. If a query falls into multiple categories, the system creates separate prompts for each relevant category and sends them to the respective agents. Each agent processes its prompt and returns an output. The system then aggregates these outputs into a single, comprehensive response, ensuring the student receives all necessary information and tasks are completed efficiently in one go.
 
 # Agent Processing
