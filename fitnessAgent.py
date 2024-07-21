@@ -269,12 +269,6 @@ def main():
         else:
             st.info("Please complete the nutrition questionnaire above to get started.")
             
-    st.markdown("""
-        ## How to Use:
-            1. Fill out the fitness questionnaire.
-            2. Ask your personal trainer any fitness-related questions.
-            3. View your personalized advice and workout plans.
-    """)
     
 if __name__ == "__main__":
     main()
