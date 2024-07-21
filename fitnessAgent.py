@@ -207,6 +207,14 @@ if 'history' not in st.session_state:
     st.session_state['history'] = []
 
 def main():
+    st.title("Fitness Buddy")
+    st.markdown("""
+        ## How to Use:
+            1. Fill out the fitness questionnaire.
+            2. Ask your personal trainer any fitness-related questions.
+            3. View your personalized advice and workout plans.
+    """)
+    
     tab1, tab2 = st.tabs(["Fitness", "Nutrition"])
 
     with tab1:

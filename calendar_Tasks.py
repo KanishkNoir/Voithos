@@ -95,6 +95,8 @@ def main():
 
     # User Input
     query = st.text_input("Enter your request:")
+    with st.chat_message(name="user"):
+        query = st.text_input("Enter your request to retrieve your tasks:")
     
     if query:
         st.write("Processing your request...")
@@ -103,6 +105,14 @@ def main():
         response = process_query(query, events)
         st.write("## AI Response")
         st.write(response)
+    with st.chat_message(name="ai"):
+        if query:
+            st.write("Processing your request...")
+            now = datetime.now(timezone.utc).isoformat()
+            events = get_events(service, now)
+            response = process_query(query, events)
+            st.write("## AI Response")
+            st.write(response)
 
 if __name__ == "__main__":
     main()

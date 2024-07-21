@@ -110,9 +110,6 @@ def display_recommendation_images(recommendations):
 
     st.markdown(formatted_recommendations, unsafe_allow_html=True)
 
-# Initialize session state variables
-if 'user_data' not in st.session_state:
-    st.session_state['user_data'] = {}
 
 if 'selected_mood' not in st.session_state:
     st.session_state['selected_mood'] = None

@@ -196,16 +196,14 @@ def split_text(text):
     return splitter.get_nodes_from_documents([Document(text=text)])
 
 def main():
-    st.title("Student Multi-Agent System")
-    st.subheader("RAG based note taking application")
+    
+    st.title("Study Buddy")
     st.markdown("""
         ## How to Use
         1. Upload your PDFs on the left sidebar.
         2. Click "Generate Flashcards" or "Generate Questions" or "Generate mind map" to create study aids.
         3. Enter a query in the prompt box on the left sidebar and click "Submit Query" to converse with the system.
         4. View the response in the main area.
-
-        ## Examples
         
     """)
 
