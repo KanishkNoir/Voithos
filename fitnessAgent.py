@@ -1,96 +1,158 @@
-from langchain_community.llms import Ollama
-from langchain_community.agent_toolkits.load_tools import load_tools
-from crewai import Agent, Crew, Task, Process
-from tools.search_tools import SearchTools
+import os
+import streamlit as st
+from together import Together
 from dotenv import load_dotenv
 
-model = Ollama(model="llama3")
+# Load environment variables
 load_dotenv()
-verbose = True
+api_key = os.getenv("TOGETHER_API_KEY")
+client = Together(api_key=api_key)
 
-# User Query
-query = "Help me with a workout plan."
-
-# Agents
-class FitnessAgents():
-    def fitness_trainer(self):
-        return Agent(
-            role="Fitness Trainer",
-            goal="Make a custom, well-detailed training plan according to user's needs to help achieve desired goals. You can search the internet to find relevant data and content to generate your answer, but use it only once to gather information, after that reflect on the data and write a plan accordinly.",
-            backstory="With a background in personal training and certification in strength and conditioning, you have a proven track record of helping clients build muscle, loose weight and improve their fitness levels. Your passion for fitness and dedication to personalized workout plans and support make you an invaluable part of the team.",
-            tools=[SearchTools.search_internet],
-            verbose=verbose,
-            allow_delegation=False,
-            llm=model,
-            max_iter=10
-        )
-
-    def nutritionist(self):
-        return Agent(
-            role="Nutritionist",
-            goal="Make a custom diet plan which complement user's fitness regimen, and required needs. You aim to provide practical and sustainable dietary recommendations. You can also search the internet to find relevant data and content to generate your answer, but  use it only once to gather information, after that reflect on the data and writer write accordinly.",
-            backstory="With a degree in nutrition or dietetics and certification in your field, you have experience working with athletes and individuals with specific dietary needs. Your expertise includes meal planning, nutrient timing, and understanding the relationship between diet and exercise performance.",
-            tools=[SearchTools.search_internet],
-            verbose=verbose,
-            allow_delegation=False,
-            llm=model,
-            max_iter=10
-        )
+def connectLLM(response, context):
+    collected_response = ""
+    stream = client.chat.completions.create(
+        model="meta-llama/Meta-Llama-3-8B-Instruct-Turbo",
+        messages=[
+            {"role": "system", "content": "With a background in personal training and certification in strength and conditioning, you have a proven track record of helping clients build muscle, loose weight and improve their fitness levels. Your passion for fitness and dedication to personalized workout plans and support make you an invaluable part of the team."},
+            {"role": "user", "content": f"Use the 'User's Details' as context to create a Personalized Workout Plan for client, based on the user's query: {response}. User's Details: {context}."}
+        ],
+        stream=True,
+    )
+    for chunk in stream:
+        collected_response += chunk.choices[0].delta.content or ""
         
-    def plan_writer(self):
-        return Agent(
-            role="Plan Writer",
-            goal="Writing detailed customized fintess and nutrion plans for clients incorporating the details received from other agents.",
-            backstory="With extensive experience in managing fitness programs and a strong background in exercise science and health coaching, you have successfully guided numerous clients through comprehensive fitness journeys. Your expertise in tailoring plans and strategic oversight helps clients achieve significant results.",
-            verbose=verbose,
-            allow_delegation=True,
-            llm=model,
-        )
+    st.write(collected_response)
+    st.session_state['history'].append(f"\n{collected_response}")
+    return collected_response
 
-# Tasks
-class FitnessTasks:
-    def generate_fitness_routine(self, agent):
-        return Task(
-            description=f"Create a Personalized Workout Plan for client, based on the query: {query} and searched results from the internet(if any).",
-            agent=agent,
-            expected_output="A detailed and structured fitness routine based on the input query."
-        )
+def fitness_questionnaire():
+    if 'user_responses' not in st.session_state:
+        st.session_state['user_responses'] = None
+        
+    if st.session_state['user_responses'] is None:   
+        with st.expander("Fitness Questionnaire", expanded=True):
+            st.write("Please answer all questions to generate your personalized fitness profile.")
 
-    def generate_diet_plan(self, agent, context):
-        return Task(
-            description=f"Design a Customized Meal Plan for client, based on the training_regime:{context} and intial_query:{query}.",
-            agent=agent,
-            context=context,
-            expected_output="A comprehensive and structured diet plan based on the input query."
-        )
+            questions = [
+            {
+                "question": "What is your current fitness level?",
+                "options": ["Beginner", "Intermediate", "Advanced"],
+                "key": "fitness_level"
+            },
+            {
+                "question": "What are your fitness goals?",
+                "options": ["Weight loss", "Muscle gain", "Increased endurance", "Improved overall health"],
+                "key": "fitness_goals"
+            },
+            {
+                "question": "How many days per week can you dedicate to working out?",
+                "options": [str(i) for i in range(1, 8)],
+                "key": "workout_days"
+            },
+            {
+                "question": "What time of day do you prefer to work out?",
+                "options": ["Morning", "Afternoon", "Evening"],
+                "key": "workout_time"
+            },
+            {
+                "question": "Do you have any physical limitations or injuries that may impact your ability to perform certain exercises?",
+                "key": "limitations"
+            },
+            {
+                "question": "Are there any specific exercises or muscle groups you'd like to focus on?",
+                "key": "focus_areas"
+            },
+            {
+                "question": "Do you have access to a gym or would you prefer to work out at home?",
+                "options": ["Gym", "Home", "Both"],
+                "key": "workout_location"
+            },
+            {
+                "question": "How much time are you willing to commit to each workout session?",
+                "options": ["30 minutes", "45 minutes", "60 minutes"],
+                "key": "workout_duration"
+            },
+            {
+                "question": "Are you interested in incorporating any specific types of exercise into your routine?",
+                "options": ["Cardio", "Strength training", "Flexibility exercises", "All of the above"],
+                "key": "exercise_types"
+            },
+            {
+                "question": "Do you have a preferred pace for your workouts?",
+                "options": ["Fast-paced", "Moderate", "Slow and steady"],
+                "key": "workout_pace"
+            }
+        ]
 
-    def write_plans(self, agent, context):
-        return Task(
-            description=f"With the help of the content provided by 'fitness_trainer' and 'nutritionist' agents: {context}, Write a Detailed Fitness and Nutrition Plan for the week.",
-            agent=agent,
-            context=context,
-            expected_output="Well formated and structured weekly fitness and diet plan according to the user's needs."
-        )
+            responses = {}
 
-# Initialize the Crew with the agents and tasks
-agents = FitnessAgents()
-tasks = FitnessTasks()
+            for q in questions:
+                if "options" in q:
+                    response = st.selectbox(q["question"], q["options"], key=q["key"])
+                else:
+                    response = st.text_input(q["question"], key=q["key"])
 
-trainer = agents.fitness_trainer()
-nutritionist = agents.nutritionist()
-writer = agents.plan_writer()
+                responses[q["key"]] = response
 
-generate_fitness_routine = tasks.generate_fitness_routine(trainer)
-generate_diet_plan = tasks.generate_diet_plan(nutritionist, [generate_fitness_routine])
-write_plan = tasks.write_plans(writer, [generate_fitness_routine, generate_diet_plan])
+            if st.button("Submit"):
+                if all(responses.values()):
+                    st.session_state['user_responses'] = responses
+                    st.success("Thank you for completing the questionnaire!")
+                    # st.json(responses)
+                else:
+                    st.error("Please answer all questions before submitting.")
+    
+    return st.session_state.user_responses
 
-crew = Crew(
-    agents=[trainer, nutritionist, writer],
-    tasks=[generate_fitness_routine, generate_diet_plan, write_plan],
-    process=Process.sequential,
-    verbose=verbose,
-)
+def getFitnessAdvise(prompt, history, context):
+    messages = [{"role": "user", "content": p} for p in history]
+    messages.append({"role": "user", "content": prompt})
 
-# Execute the Crew process and handle the output
-output = crew.kickoff()
-print(output)
+    try:
+        responseLLM = connectLLM(prompt, context)
+        return responseLLM
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        return None
+
+if 'history' not in st.session_state:
+    st.session_state['history'] = []
+
+def main():
+    tab1, tab2 = st.tabs(["Fitness", "Nutrition"])
+
+    with tab1:
+        st.header("Get your personalized fitness regime.")
+        fitness_questionnaire()
+        user_responses = st.session_state['user_responses']
+        
+        if user_responses is not None:
+            with st.chat_message(name="user"):
+                prompt = st.text_input("Ask anything to your personal trainer?")
+            with st.chat_message(name="ai"): 
+                if st.button("Submit Query"):
+                    if prompt:
+                        with st.spinner('Processing...'):
+                            st.session_state['history'].append(prompt)
+                            response = getFitnessAdvise(prompt, st.session_state['history'], user_responses)
+                            if response:
+                                st.session_state['history'].append(response)
+                                st.success("Response received:")
+                                st.write(response)
+                            else:
+                                st.error("Failed to get a response. Please try again.")
+
+                    else:
+                        st.error("Please enter a topic or question.")
+        else:
+            st.info("Please complete the fitness questionnaire above to get started.")
+            
+    st.markdown("""
+        ## How to Use:
+            1. Fill out the fitness questionnaire.
+            2. Ask your personal trainer any fitness-related questions.
+            3. View your personalized advice and workout plans.
+    """)
+    
+if __name__ == "__main__":
+    main()
