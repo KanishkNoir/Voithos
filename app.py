@@ -17,7 +17,7 @@ def main():
     elif page == 'Mood Tracker':
         mood_tracker_main()
 
-    elif page == 'RAG System':
+    elif page == 'Note Agent':
         note_agent_main()
     
     elif page == 'Calendar':
