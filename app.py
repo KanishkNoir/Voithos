@@ -1,6 +1,6 @@
 import streamlit as st
 from mood import main as mood_tracker_main
-# from noteAgent import main as note_agent_main
+from noteAgent import main as note_agent_main
 from calendar_Tasks import main as calendar_tasks_main
 from fitnessAgent import main as fitness_agent_main
 import os
