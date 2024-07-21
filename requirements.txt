@@ -1,0 +1,9 @@
+together
+llama-index-llms-together
+llama-index-embeddings-together
+llama-index
+PyMuPDF
+google-auth 
+google-auth-oauthlib 
+google-auth-httplib2 
+google-api-python-client
