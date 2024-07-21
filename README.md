@@ -23,7 +23,7 @@ Scheduler Agent:
 
 Handles calendar-related queries.
 Interacts directly with the Google Calendar API to manage events and schedules.
-Doesn't use RAG, focusing on efficient API interactions.
+It doesn't use RAG, focusing on efficient API interactions.
 
 
 Note Maker Agent:
@@ -35,9 +35,11 @@ Interacts with a dedicated note storage system for basic note management.
 
 Fitness Agent:
 
-Provides workout schedules and mental health advice.
-Uses predefined plans and resources without RAG.
-Could potentially integrate with external fitness tracking APIs in the future.
+Provides customized workout plans based on user's needs.
+Users need to answer some simple questions to get customized workout plans and tips
+Currently, it uses pre-trained data and resources without RAG.
+
+Future Scope: Could integrate with external fitness tracking APIs in the future.
 
 
 Diet Agent:
