@@ -1,4 +1,4 @@
-import streamlit as 
+import streamlit as st
 from llama_index.core import VectorStoreIndex, Document
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.embeddings.together import TogetherEmbedding
