@@ -1,13 +1,6 @@
 import streamlit as st
-from llama_index.core import VectorStoreIndex, Document
-from llama_index.core.node_parser import SentenceSplitter
-from llama_index.embeddings.together import TogetherEmbedding
-from llama_index.llms.together import TogetherLLM
-from llama_index.core import Settings
-import streamlit as st
-import fitz
 from mood import main as mood_tracker_main
-from noteAgent import main as note_agent_main
+# from noteAgent import main as note_agent_main
 from calendar_Tasks import main as calendar_tasks_main
 from fitnessAgent import main as fitness_agent_main
 import os
@@ -31,6 +24,24 @@ def classify_query(query):
     )
     return response.choices[0].message.content.strip()
 
+def redirect_to(url):
+    st.markdown(
+        f"""
+        <html>
+            <head>
+                <script type="text/javascript">
+                    window.open("{url}", "_blank");
+                    window.location.href = "{url}";
+                </script>
+            </head>
+            <body>
+                <p>If you are not redirected, <a href="{url}">click here</a>.</p>
+            </body>
+        </html>
+        """,
+        unsafe_allow_html=True
+    )
+    
 def main():
     # Enhanced Custom CSS for improved aesthetics
     st.markdown("""
@@ -134,7 +145,7 @@ def main():
     elif st.session_state.page == 'Mood Tracker':
         mood_tracker_main()
     elif st.session_state.page == 'Study Buddy':
-        note_agent_main()
+        redirect_to('https://studybud.streamlit.app/')
     elif st.session_state.page == 'Calendar':
         calendar_tasks_main()
     elif st.session_state.page == 'Fitness Buddy':
