@@ -36,7 +36,7 @@ Follow these steps to run the application:
 
 1. **Clone the Repository**
    ```
-   git clone https://github.com/jaz404/llama3hackathon.git
+   git clone https://github.com/KanishkNoir/Voithos
    ```
 2. **Install Dependencies**
    ```
